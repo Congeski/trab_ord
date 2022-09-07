@@ -5,5 +5,7 @@
 
 int main () {
     
+    int teste = 1;
+    
     return 0;
 }
