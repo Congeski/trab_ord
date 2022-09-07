@@ -6,6 +6,8 @@
 int main () {
     
     int teste = 1;
+    char c;
+    
     
     return 0;
 }
