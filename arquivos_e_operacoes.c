@@ -21,17 +21,17 @@ int byteoffset (int RRN){
 
 int ler_campos(char campo[], int tamanho, FILE *file){
     int i = 0;
-    char k = fgetc(file);
+    char c = fgetc(file);
 
-    while ( k != DELIM_STR){
+    while ( c != DELIM_STR){
         if(feof(file)){
             return -1;
         }
 
         if (i < tamanho -1){
-            campo[i++] = k;
+            campo[i++] = c;
         }
-      k = fgetc(file);
+      c = fgetc(file);
     }
 
     campo[i] = 0;
@@ -39,19 +39,19 @@ int ler_campos(char campo[], int tamanho, FILE *file){
 }
 
 
-int ler_linha(char campo[], int tamanho, FILE *file){
+int ler_linha(char campo[], int tamanho, FILE *file){ //mudanca de char k para char c 
     int i = 0;
-    char k = fgetc(file);
+    char c = fgetc(file);
 
-    while ( k != '\n'){
+    while ( c != '\n'){
         if (feof(file)){  //FUNCAO IGUAL A DE CIMA, NÃO PODERIA USAR UM AND??
             return -1;
         }
         if ( i < tamanho - 1){
-            campo[i++] = k;
+            campo[i++] = c;
         }
 
-        k = fgetc(file);
+        c = fgetc(file);
     }
 
     campo[i] = 0;
@@ -65,7 +65,7 @@ void importacao(char nomeArqImport[]){
     int cabecalho = -1;
 
     arquivoOriginal = fopen(nomeArqImport, "r");
-    arquivoDados = fopen("dados.dat", "w"); //mudar o nome do arquivo
+    arquivoDados = fopen("games.txt", "w"); //mudar o nome do arquivo
 
     if ( arquivoOriginal == NULL || arquivoDados == NULL){
         fprintf(stderr, "ERRO NA ABERTURA DOS ARQUIVOS\n ENCERRANDO PROGRAMA\n"); // printf diferente, pq??
@@ -134,7 +134,7 @@ int busca( char *chave, FILE *file){
 
 
 
-int PED (file, int RRN){
+int PED (FILE *file, int RRN){
     fseek(file, byteoffset(RRN), SEEK_SET);
 
     if (fgetc(file) != '*'){
@@ -159,7 +159,7 @@ void operacoes(char *argv){
     int RRN;
 
     operacoesFile = fopen(argv, "rb");
-    dados = fopen("dados.dat", "r+b");
+    dados = fopen("games.txt", "r+b");
 
     while((def_op = fgetc(operacoesFile)) != EOF){
         buffer [0] = 0;
@@ -175,12 +175,12 @@ void operacoes(char *argv){
                     break;
                 }
 
-                for (int i = 0, i < 4, i++){
+                for (int i = 0; i < 4; i++){
                     ler_campos(campo, COMP_CAMPO, dados);
                     strcat(buffer, campo); // strcat função
                     strcat(buffer, DELIM_STR);
                 }
-             printf("%s; RRN = %d, byte-offset %d\n",buffer, RRN, byteoffset(RRN));
+             printf("%s; RRN = %d, byte-offset %d\n", buffer, RRN, byteoffset(RRN));
              break;
             }
 
@@ -219,11 +219,11 @@ void operacoes(char *argv){
 
                 RRN = busca(chave, dados);
                 if(RRN == -1){
-                    puts("ERRO : registro nao encontrado!");
+                    puts("\n------ERRO-----\n\nRegistro nao encontrado!\n");
                     break;
                 }
                 fputc('*', dados);
-                fwrite(%cabecalho.topo_ped, sizeof(int), 1, dados);
+                fwrite(&cabecalho.topo_ped, sizeof(int), 1, dados);
                 cabecalho.topo_ped = RRN;
 
                 rewind(dados);
@@ -234,10 +234,68 @@ void operacoes(char *argv){
                 break;
 
             default:
-                printf("\nNAO FOI POSSIVEL REMOVER");
+                printf("\nNÃO FOI POSSIVEL REMOVER");
 
                 fseek(dados, 0, SEEK_END);
-                //linha 280
+                if ((ftell(dados) - sizeof(cabecalho)) % COMP_REG != 0){
+                    printf("\nNão foi possível realizar a operação\n");
+                    exit(1);
+                }
         }
     }
+
+    fclose(operacoesFile);
+    fclose(dados);
+    return 0;
+    
+}
+
+
+int imprime_ped(){ //mudar depos para LED
+    FILE *dados;
+    dados = fopen("games.txt", "rb"); //mudar nome do arquivo
+    int k, RRN;
+
+    rewind (dados);
+    if (dados == NULL){
+        printf("\n\n----ERRO----\n");
+        exit(1);
+    }
+
+    fread(&cabecalho, sizeof(cabecalho), 1, dados);
+    RRN = cabecalho.topo_ped;
+
+    printf("\nPED: %d", RRN);
+
+    while (RRN > -1){
+        RRN = PED(dados, RRN);
+        printf(" = %d", RRN);
+        k++;
+    }
+    fclose(dados);
+    return 0;   
+}
+
+int main(int argc, char *argv[]){
+
+    if(argc == 3 && strcmp(argv[1], "-i") == 0 ){
+        printf("\n\nNome do arquivo que ocorreu importação: %s\n\n", argv[2]);
+        importacao(argv[2]);
+
+    } else if (argc == 3 && strcmp(argv[1], "-e") == 0 ){
+        printf("\n\nModo de execução de operações ativado!! \n Nome do arquivo: %s\n", argv[2]);
+        operacoes(argv[2]);
+
+    } else if( argc == 2 && strcmp(argv[1], "-p") == 0 ){
+        printf("\n\n--------Impressão da PED-------\n\n"); //mudar para LED
+        imprime_ped();
+
+    } else {
+        fprintf(stderr, "Argumentos incorretos!\n\n");
+        fprintf(stderr, "Modo de uso: \n");
+        fprintf(stderr, "$ %s (-i|-e) nome_arquivo\n\n", argv[0]);
+        fprintf(stderr, "$ %s -p\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    return 0;
 }
