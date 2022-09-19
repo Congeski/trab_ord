@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>  // o que seria isso?
+#include <locale.h>
 
-#define COMP_REG 64
-#define COMP_CAMPO 60
-#define DELIM_STR '|'
+#define COMP_REG 64 //tamanho do registro
+#define COMP_CAMPO 60 //tamanho do campo (regsitro menos o cabeçalho)
 
-int proximoRegistro(char registro[COMP_REG], FILE *file); //percorre os registros??
+int proxReg(char registro[COMP_REG], FILE *file); 
 
 struct {
   int topo_ped; // o nosso trabalho utiliza LED
@@ -23,14 +22,17 @@ int ler_campos(char campo[], int tamanho, FILE *file){
     int i = 0;
     char c = fgetc(file);
 
-    while ( c != DELIM_STR){
-        if(feof(file)){
+    //Leitura dos caracteres ate atingir o delimitador('|')
+    while ( c != '|'){
+
+        if(feof(file)){ // Caso o fim do arquivo for alcancado antes do fim do campo
             return -1;
         }
 
         if (i < tamanho -1){
             campo[i++] = c;
         }
+
       c = fgetc(file);
     }
 
@@ -39,12 +41,14 @@ int ler_campos(char campo[], int tamanho, FILE *file){
 }
 
 
-int ler_linha(char campo[], int tamanho, FILE *file){ //mudanca de char k para char c 
+int ler_linha(char campo[], int tamanho, FILE *file){ 
     int i = 0;
     char c = fgetc(file);
 
+    //Leitura dos caracteres ate atingir o delimitador('\n')
     while ( c != '\n'){
-        if (feof(file)){  //FUNCAO IGUAL A DE CIMA, NÃO PODERIA USAR UM AND??
+
+        if (feof(file)){  
             return -1;
         }
         if ( i < tamanho - 1){
@@ -59,16 +63,16 @@ int ler_linha(char campo[], int tamanho, FILE *file){ //mudanca de char k para c
 }
 
 
-void importacao(char nomeArqImport[]){
+void importacao(char nomeArqImport[]){ //  ./programa -i nome_arquivo_importacao.txt       
     FILE *arquivoOriginal;
     FILE *arquivoDados;
     int cabecalho = -1;
 
     arquivoOriginal = fopen(nomeArqImport, "r");
-    arquivoDados = fopen("games.txt", "w"); //mudar o nome do arquivo
+    arquivoDados = fopen("games.txt", "w"); 
 
     if ( arquivoOriginal == NULL || arquivoDados == NULL){
-        fprintf(stderr, "ERRO NA ABERTURA DOS ARQUIVOS\n ENCERRANDO PROGRAMA\n"); // printf diferente, pq??
+        fprintf(stderr, "ERRO NA ABERTURA DOS ARQUIVOS\n ENCERRANDO PROGRAMA\n"); 
         exit(EXIT_FAILURE);
     }
 
@@ -76,7 +80,7 @@ void importacao(char nomeArqImport[]){
     char buffer[COMP_REG];
 
     while (!feof(arquivoOriginal)){
-        int sucesso = proximoRegistro(buffer, arquivoOriginal);
+        int sucesso = proxReg(buffer, arquivoOriginal);
 
         if (sucesso == 1){
             fwrite(buffer, sizeof(char), COMP_REG, arquivoDados);
@@ -92,7 +96,7 @@ int proxReg(char registro[COMP_REG], FILE *file){
     int contPipe = 0, tam = 0;  //contPipe???
     char c;
 
-    memset(registro, '\0', COMP_REG); //????
+    memset(registro, '\0', COMP_REG); //colocar o \0 até dar o tamanho do registro
 
     while (contPipe < 4 && tam < COMP_REG){
         c = fgetc(file);
@@ -103,7 +107,7 @@ int proxReg(char registro[COMP_REG], FILE *file){
 
         registro [tam] = c;
 
-        if ( c == DELIM_STR){
+        if ( c == '|'){
             contPipe += 1;
         }
 
@@ -120,7 +124,7 @@ int busca( char *chave, FILE *file){
 
     fseek(file, sizeof(cabecalho), SEEK_SET);
 
-    while (ler_campos(campo, 7, file) > -1){ //da onde vem esse 7?
+    while (ler_campos(campo, 7, file) > -1){ 
         if( strcmp(campo, chave) == 0){
             fseek(file, -7, SEEK_CUR);
             return RRN;
@@ -148,7 +152,7 @@ int PED (FILE *file, int RRN){
 }
 
 
-void operacoes(char *argv){
+void operacoes(char *argv){ // ./programa -e nome_do_arquivo.txt     para realizar as operações abaixo
     FILE *dados;
     FILE *operacoesFile;
 
@@ -178,17 +182,18 @@ void operacoes(char *argv){
                 for (int i = 0; i < 4; i++){
                     ler_campos(campo, COMP_CAMPO, dados);
                     strcat(buffer, campo); // strcat função
-                    strcat(buffer, DELIM_STR);
+                    strcat(buffer, "|");
                 }
              printf("%s; RRN = %d, byte-offset %d\n", buffer, RRN, byteoffset(RRN));
              break;
             }
 
-            case 'i':
+            case 'i':    // i é uma operação de inserção
                 ler_linha(buffer, COMP_REG, operacoesFile);
-                strncpy(chave, buffer, 6); //função que não conheco/lembro
+                strncpy(chave, buffer, 6); // mesma função do strcpy, mas esse da para escolher a quantidade de caracteres da string origem
                 printf("\nINSERÇÃO DO REGISTRO DE CHAVE %s", chave);
-                if (busca(chave, dados) != -1){
+
+                if (busca(chave, dados) != -1){  //significa que já existe uma chave naquela posição do FILE dados
                     printf("ERRO: CHAVE %s JA EXISTE NO REGISTRO", chave);
                     break;
                 }
@@ -210,7 +215,8 @@ void operacoes(char *argv){
                }
                break;
 
-            case 'r':
+            case 'r':  // r é uma operação de remoção
+
                 ler_linha(chave, 7, operacoesFile);
                 printf("\nREMOÇÃO DO REGISTRO %s\n", chave);
                 rewind (dados);
@@ -218,12 +224,15 @@ void operacoes(char *argv){
                 fread(&cabecalho, sizeof(cabecalho), 1, dados);
 
                 RRN = busca(chave, dados);
+
                 if(RRN == -1){
                     puts("\n------ERRO-----\n\nRegistro nao encontrado!\n");
                     break;
                 }
+
                 fputc('*', dados);
                 fwrite(&cabecalho.topo_ped, sizeof(int), 1, dados);
+
                 cabecalho.topo_ped = RRN;
 
                 rewind(dados);
@@ -237,7 +246,9 @@ void operacoes(char *argv){
                 printf("\nNÃO FOI POSSIVEL REMOVER");
 
                 fseek(dados, 0, SEEK_END);
-                if ((ftell(dados) - sizeof(cabecalho)) % COMP_REG != 0){
+                if ((ftell(dados) - sizeof(cabecalho)) % COMP_REG != 0){   /* ftell = Retorna o valor atual do indicador de posição do fluxo. 
+                                                                            Esse valor pode ser usado pela função fseek com origem SEEK_SET 
+                                                                            para retornar o indicador a posição atual.*/
                     printf("\nNão foi possível realizar a operação\n");
                     exit(1);
                 }
@@ -246,12 +257,10 @@ void operacoes(char *argv){
 
     fclose(operacoesFile);
     fclose(dados);
-    return 0;
-    
 }
 
-
-int imprime_ped(){ //mudar depos para LED
+// vai imprimir os valores na PED que estão livres 
+int imprime_ped(){                                          // ./programa -p 
     FILE *dados;
     dados = fopen("games.txt", "rb"); //mudar nome do arquivo
     int k, RRN;
