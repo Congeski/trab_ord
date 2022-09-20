@@ -69,7 +69,7 @@ void importacao(char nomeArqImport[]){ //  ./programa -i nome_arquivo_importacao
     int cabecalho = -1;
 
     arquivoOriginal = fopen(nomeArqImport, "r");
-    arquivoDados = fopen("games.txt", "w"); 
+    arquivoDados = fopen("dados.dat", "w"); 
 
     if ( arquivoOriginal == NULL || arquivoDados == NULL){
         fprintf(stderr, "ERRO NA ABERTURA DOS ARQUIVOS\n ENCERRANDO PROGRAMA\n"); 
@@ -163,7 +163,7 @@ void operacoes(char *argv){ // ./programa -e nome_do_arquivo.txt     para realiz
     int RRN;
 
     operacoesFile = fopen(argv, "rb");
-    dados = fopen("games.txt", "r+b");
+    dados = fopen("dados.dat", "r+b");
 
     while((def_op = fgetc(operacoesFile)) != EOF){
         buffer [0] = 0;

@@ -1,0 +1,70 @@
+Busca pelo registro de chave "22"
+22|Tetris|1984|Puzzle|Elorg|Electronika 60| (43 bytes)
+
+Busca pelo registro de chave "3"
+3|Ultima Online|1997|MMORPG|Electronic Arts|PC| (47 bytes)
+
+Insercao do registro de chave "147" (60 bytes)
+Local: fim do arquivo
+
+Remocao do registro de chave "99"
+Registro removido! (94 bytes)
+Local: offset = 6290 bytes (0x1892)
+
+Remocao do registro de chave "230"
+Erro: registro nao encontrado!
+
+Insercao do registro de chave "181" (35 bytes)
+Tamanho do espaco reutilizado: 94 bytes
+Local: offset = 6290 bytes (0x1892)
+
+Remocao do registro de chave "27"
+Registro removido! (37 bytes)
+Local: offset = 1592 bytes (0x638)
+
+Remocao do registro de chave "43"
+Registro removido! (53 bytes)
+Local: offset = 2533 bytes (0x9e5)
+
+Remocao do registro de chave "54"
+Registro removido! (51 bytes)
+Local: offset = 3225 bytes (0xc99)
+
+Remocao do registro de chave "78"
+Registro removido! (39 bytes)
+Local: offset = 4907 bytes (0x132b)
+
+Busca pelo registro de chave "147"
+147|Resident Evil 2|1998|Survival horror|Capcom|PlayStation| (60 bytes)
+
+Busca pelo registro de chave "181"
+181|Pac-Man|1980|Maze|Namco|Arcade| (35 bytes)
+
+Insercao do registro de chave "144" (53 bytes)
+Tamanho do espaco reutilizado: 53 bytes
+Local: offset = 2533 bytes (0x9e5)
+
+Insercao do registro de chave "237" (85 bytes)
+Local: fim do arquivo
+
+Insercao do registro de chave "222" (43 bytes)
+Tamanho do espaco reutilizado: 51 bytes
+Local: offset = 3225 bytes (0xc99)
+
+Remocao do registro de chave "63"
+Registro removido! (101 bytes)
+Local: offset = 3818 bytes (0xeea)
+
+Remocao do registro de chave "75"
+Registro removido! (83 bytes)
+Local: offset = 4676 bytes (0x1244)
+
+Busca pelo registro de chave "237"
+237|Grand Theft Auto: San Andreas|2004|Action-adventure|Rockstar Games|PlayStation 2| (85 bytes)
+
+Busca pelo registro de chave "95"
+95|Braid|2008|Puzzle-platformer|Microsoft Game Studios|Xbox 360| (64 bytes)
+
+Insercao do registro de chave "221" (81 bytes)
+Tamanho do espaco reutilizado: 83 bytes
+Local: offset = 4676 bytes (0x1244)
